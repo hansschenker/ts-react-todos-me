@@ -1,19 +1,37 @@
-import React, { FC }  from "react";
-import { Profile } from "./profile/profile";
-// Declaring type of props - see "Typing Component Props" for more examples
+import React, { FC, useMemo, useState }  from "react";
+import { interval, tap } from "rxjs";
+import { useObservable } from "./utils/rxjs-react-helpers";
+
 type AppProps = {
     message: string;
-  }; /* use `interface` if exporting so that consumers can extend */
+  };
   
-  // Easiest way to declare a Function Component; return type is inferred.
- export const App = ({ message }: AppProps) => 
- <>
- <div>{message}</div>;
-  <Profile name="Hans Schenker" imageUrl="./profile.jpg" />
- </>
+//  export const App = ({ message }: AppProps) => 
+ 
+//  <>
+//  <div>{message}</div>;
+//  </>
+export function App({ message }: AppProps) {
+
+   
+  const tick2$ = useMemo( () => interval(1000).pipe(
+    tap( n =>  {
+      if(n === 3){
+         throw new Error("Error 2")
+       //EMPTY - swallow error
+      } 
+    })
+  ), [])
   
-  // you can choose annotate the return type so an error is raised if you accidentally return some other type
-//   const App = ({ message }: AppProps): JSX.Element => <div>{message}</div>;
   
-//   // you can also inline the type declaration; eliminates naming the prop types, but looks repetitive
-//   const App = ({ message }: { message: string }) => <div>{message}</div>;
+  //const [count, setCount] = useState(0)
+  //useSubscription( tick$, n => setCount(n))
+
+  const [ error, setError ] = useState('')
+  const count = useObservable(tick2$, 0, err => setError(err.message))
+
+  return <div> { count  } -  { message} </div>
+
+   
+} 
+
