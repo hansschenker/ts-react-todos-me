@@ -1,37 +1,46 @@
-import React, { FC, useMemo, useState }  from "react";
-import { interval, tap } from "rxjs";
-import { useObservable } from "./utils/rxjs-react-helpers";
+import React, { FC, useMemo, useState } from "react";
+// rxjs
+// import { interval, tap } from "rxjs";
+// import { useObservable } from "./utils/rxjs-react-helpers";
+import { List } from "./todos/todo.helpers";
+import { TodoList } from "./todos/todos.list";
 
 type AppProps = {
-    message: string;
-  };
-  
-//  export const App = ({ message }: AppProps) => 
- 
+  message: string;
+};
+
+//  export const App = ({ message }: AppProps) =>
+
 //  <>
 //  <div>{message}</div>;
 //  </>
+import * as db from "./todos-api/todos.db.json";
+import TodoListitem from "./todos-crud/todo.listitem";
+
 export function App({ message }: AppProps) {
 
-   
-  const tick2$ = useMemo( () => interval(1000).pipe(
-    tap( n =>  {
-      if(n === 3){
-         throw new Error("Error 2")
-       //EMPTY - swallow error
-      } 
-    })
-  ), [])
+  const [todos, setTodos] = useState(db.todos);
+
+  const toggleCompleted = (id: number) => {
+    const newTodos = todos.map(todo => {
+      if (todo.id === id) {
+        return { ...todo, completed: !todo.completed };
+      }
+      return todo;
+    });
+    setTodos(newTodos);
+  }
   
-  
-  //const [count, setCount] = useState(0)
-  //useSubscription( tick$, n => setCount(n))
 
-  const [ error, setError ] = useState('')
-  const count = useObservable(tick2$, 0, err => setError(err.message))
-
-  return <div> { count  } -  { message} </div>
-
-   
-} 
-
+  return (
+    <div>
+      <pre>{JSON.stringify(todos, null, 2)}</pre>
+      <ul>
+        {todos.map((todo) => (
+          <TodoListitem key={todo.id} todo={todo} toggleCompleted= {toggleCompleted} />
+        ))}
+      </ul>
+      {/* <TodoListitem todo={todos[0]} /> */}
+    </div>
+  );
+}
