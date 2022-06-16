@@ -1,21 +1,17 @@
 import React, { FC, useMemo, useState } from "react";
+
 // rxjs
 // import { interval, tap } from "rxjs";
 // import { useObservable } from "./utils/rxjs-react-helpers";
-import { List } from "./todos/todo.helpers";
-import { TodoList } from "./todos/todos.list";
 
 type AppProps = {
   message: string;
 };
 
-//  export const App = ({ message }: AppProps) =>
 
-//  <>
-//  <div>{message}</div>;
-//  </>
 import * as db from "./todos-api/todos.db.json";
-import TodoListitem from "./todos-crud/todo.listitem";
+import TodoForm from "./todos-crud/todo.form";
+import TodoList from "./todos-crud/todo.list";
 
 export function App({ message }: AppProps) {
 
@@ -31,16 +27,22 @@ export function App({ message }: AppProps) {
     setTodos(newTodos);
   }
   
+  const addTodo = (title: string) => { 
+    const newTodo:Todo = {
+      id: todos.length + 1,
+      title,
+      completed: false
+    }
+    // do not add empty entries
+    title.trim() !== "" && setTodos([...todos, newTodo]);
+    // setTodos([...todos, newTodo]);
+  }
 
   return (
     <div>
       <pre>{JSON.stringify(todos, null, 2)}</pre>
-      <ul>
-        {todos.map((todo) => (
-          <TodoListitem key={todo.id} todo={todo} toggleCompleted= {toggleCompleted} />
-        ))}
-      </ul>
-      {/* <TodoListitem todo={todos[0]} /> */}
+      <TodoForm addTodo={addTodo} />
+      <TodoList todos={todos} toggleCompleted={toggleCompleted} />
     </div>
   );
 }
